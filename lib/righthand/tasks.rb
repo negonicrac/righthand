@@ -1,16 +1,16 @@
-desc "generate and deploy website via rsync"
+desc 'generate and deploy website via rsync'
 task :deploy do
-  system "middleman build -c --verbose"
+  system 'middleman build -c --verbose'
 
-  puts ">>> DEPLOYING SITE <<<"
+  puts '>>> DEPLOYING SITE <<<'
 
-  configs   = YAML::load_file(".fog.yml")
+  configs   = YAML.load_file('.fog.yml')
 
-  src       = File.expand_path("build")
+  src       = File.expand_path('build')
   s3_bucket = configs.delete(:bucket) || configs.delete(:bucket_name)
 
   # Upload all the files in the output folder to the clouds
-  puts "Uploading local files"
+  puts 'Uploading local files'
   FileUtils.cd(src) do
     published_files = FileList['**/*'].inject({}) do |hsh, path|
       hsh ||= {}
@@ -31,18 +31,18 @@ task :deploy do
     end
     raise "#{src} is empty: aborting" if published_files.size <= 1
 
-    puts "Connecting"
+    puts 'Connecting'
     connection = ::Fog::Storage.new(configs)
 
     # Get bucket
-    puts "Getting bucket"
+    puts 'Getting bucket'
     begin
       bucket = connection.directories.get(s3_bucket)
     rescue ::Excon::Errors::NotFound
       should_create_bucket = true
     end
     should_create_bucket = true if bucket.nil?
-    puts "Got bucket"
+    puts 'Got bucket'
 
     # Create bucket if necessary
     if should_create_bucket
@@ -53,53 +53,44 @@ task :deploy do
       case etag
       when :directory
         puts "Creating directory #{file}"
-        bucket.files.create(:key => file, :public => true)
+        bucket.files.create(key: file, public: true)
       else
-        if f = bucket.files.head(file)
-          # if f.etag == etag
-          #   puts "Skipping #{file} (identical)"
-          # else
-            puts "Updating #{file}"
-            bucket.files.create(configure_file_opts(file))
-          # end
-        else
-          puts "Uploading #{file}"
-          bucket.files.create(configure_file_opts(file))
-        end
+        puts "Updating #{file}"
+        bucket.files.create(configure_file_opts(file))
       end
     end
 
     ## Clean up removed files
     bucket.files.each do |object|
-      unless published_files.has_key? object.key
+      unless published_files.key? object.key
         puts "Removing #{object.key} (no longer exists)"
         object.destroy
       end
     end
   end
 
-  puts "Done!"
+  puts 'Done!'
 end
 
 def configure_file_opts(file)
-  cache_time = 28800
-  cache_control = "max-age=28800, public"
+  cache_time = 28_800
+  cache_control = 'max-age=28800, public'
 
-  if file.match(".(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav)$")
-    cache_time = 29030400
-    cache_control = "max-age=29030400, public"
-  elsif file.match(".(jpg|jpeg|png|gif|swf)$")
-    cache_time = 6048000
-    cache_control = "max-age=6048000, public"
-  elsif file.match(".(txt|xml|js|css)$")
-    cache_time = 28800
-    cache_control = "max-age=28800, public"
-  elsif file.match(".(html|htm.gz)$")
-    cache_time = 28800
-    cache_control = "max-age=28800, public"
-  elsif file.match(".(php|cgi|pl)$")
+  if file =~ /.(flv|ico|pdf|avi|mov|ppt|doc|mp3|wmv|wav)$/
+    cache_time = 29_030_400
+    cache_control = 'max-age=29030400, public'
+  elsif file =~ /.(jpg|jpeg|png|gif|swf)$/
+    cache_time = 6_048_000
+    cache_control = 'max-age=6048000, public'
+  elsif file =~ /.(txt|xml|js|css)$/
+    cache_time = 28_800
+    cache_control = 'max-age=28800, public'
+  elsif file =~ /.(html|htm.gz)$/
+    cache_time = 28_800
+    cache_control = 'max-age=28800, public'
+  elsif file =~ /.(php|cgi|pl)$/
     cache_time = 0
-    cache_control = "max-age=0, private, no-store, no-cache, must-revalidate"
+    cache_control = 'max-age=0, private, no-store, no-cache, must-revalidate'
   end
 
   file_opts = {
@@ -110,33 +101,33 @@ def configure_file_opts(file)
     expires: CGI.rfc1123_date(Time.now + cache_time)
   }
 
-  if file.match(".gz$")
-    file_opts.merge!(:content_encoding => "gzip")
-  elsif file.match(".appcache$")
-    file_opts.merge!(:content_type => "text/cache-manifest")
+  if file =~ /.gz$/
+    file_opts[:content_encoding] = 'gzip'
+  elsif file =~ /.appcache$/
+    file_opts[:content_type] = 'text/cache-manifest'
   end
 
   file_opts
 end
 
-desc "generate favicons"
+desc 'generate favicons'
 task :favicons do
   src = Dir.pwd
   puts src
 
   options = {
-    versions: [:apple_114, :apple_57, :apple, :fav_ico],
+    versions: %i[apple_114 apple_57 apple fav_ico],
     custom_versions: {
       apple_extreme_retina: {
-        filename: "apple-touch-icon-228x228-precomposed.png",
-        dimensions: "228x228",
-        format: "png"
+        filename: 'apple-touch-icon-228x228-precomposed.png',
+        dimensions: '228x228',
+        format: 'png'
       }
     },
     root_dir: Dir.pwd,
-    input_dir: "source",
-    base_image: "images/logo.png",
-    output_dir: "source",
+    input_dir: 'source',
+    base_image: 'images/logo.png',
+    output_dir: 'source',
     copy: true
   }
 

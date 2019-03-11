@@ -10,8 +10,9 @@ module Righthand
       end
 
       private
+
       def author(name)
-        name ||= "negonicrac"
+        name ||= 'negonicrac'
         data.authors[name.to_sym]
       end
     end

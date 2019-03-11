@@ -9,7 +9,7 @@ module ::Middleman
   module Blog
     module BlogArticle
       def author
-        a = data.author || "negonicrac"
+        a = data.author || 'negonicrac'
         @app.data.authors[a]
       end
 
@@ -25,14 +25,14 @@ module ::Middleman
         !!data.comments
       end
 
-      def serializable_hash(options = nil)
+      def serializable_hash(_options = nil)
         {
-          id: url.gsub(/.html$/,""),
-          url: url.gsub(/.html$/,".json"),
+          id: url.gsub(/.html$/, ''),
+          url: url.gsub(/.html$/, '.json'),
           slug: slug,
           mime_type: mime_type,
           title: title,
-          display_title: data["eng_title"] || title,
+          display_title: data['eng_title'] || title,
           date: date,
           published: data.published,
           comments: data.comments,

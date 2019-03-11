@@ -9,13 +9,13 @@ module Righthand
       def ordinal(num)
         num = num.to_i
         case num % 100
-          when 11..13; "#{num}th"
+        when 11..13 then "#{num}th"
         else
           case num % 10
-            when 1; "#{num}st"
-            when 2; "#{num}nd"
-            when 3; "#{num}rd"
-            else    "#{num}th"
+          when 1 then "#{num}st"
+          when 2 then "#{num}nd"
+          when 3 then "#{num}rd"
+          else "#{num}th"
           end
         end
       end

@@ -1,5 +1,5 @@
-require "redcarpet"
-require "oembed"
+require 'redcarpet'
+require 'oembed'
 
 module Righthand
   OEmbed::Providers.register_all
@@ -12,24 +12,24 @@ module Righthand
     def parse_media_title(title)
       unless title.nil?
         matches = title.match(/^(\w+)?\|([\w\s\d]+)$/)
-        {
-            title: matches[1],
-            align: (matches[2] || "original").to_sym,
-        } if matches
+        if matches
+          { title: matches[1],
+            align: (matches[2] || 'original').to_sym }
+        end
       end
     end
 
     def image(link, title, alt_text)
       align = nil
 
-      if nil != (parse = parse_media_title(title))
+      unless (parse = parse_media_title(title)).nil?
         title = parse[:title]
         align = parse[:align]
       end
 
       case align
       when :center
-        middleman_app.content_tag(:div, class: "center-text") do
+        middleman_app.content_tag(:div, class: 'center-text') do
           middleman_app.image_tag(link, title: title, alt: alt_text)
         end
       else
@@ -40,14 +40,14 @@ module Righthand
     def link(link, title, content)
       align = nil
 
-      if nil != (parse = parse_media_title(title))
+      unless (parse = parse_media_title(title)).nil?
         title = parse[:title]
         align = parse[:align]
       end
 
       case align
       when :center
-        middleman_app.content_tag(:div, class: "center-text") do
+        middleman_app.content_tag(:div, class: 'center-text') do
           middleman_app.link_to(content, link, title: title)
         end
       else
@@ -57,17 +57,15 @@ module Righthand
 
     def preprocess(full_document)
       full_document = full_document.gsub(/\[youtube ([\w\s\d]+)\]/) do
-        link = "http://youtu.be/#{$1}"
+        link = "http://youtu.be/#{Regexp.last_match(1)}"
 
         middleman_app.content_tag(:div) do
-         [
-          middleman_app.content_tag(:div, class: "fluid-video") do
-           OEmbed::Providers.get(link).html
-          end,
-          middleman_app.content_tag(:div) do
-            middleman_app.link_to(link, link)
-          end
-         ].join()
+          [middleman_app.content_tag(:div, class: 'fluid-video') do
+             OEmbed::Providers.get(link).html
+           end,
+           middleman_app.content_tag(:div) do
+             middleman_app.link_to(link, link)
+           end].join
         end
       end
 

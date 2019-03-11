@@ -1,0 +1,23 @@
+PATH
+  remote: .
+  specs:
+    righthand (0.0.1)
+      rake
+      redcarpet
+      ruby-oembed
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rake (12.3.2)
+    redcarpet (3.4.0)
+    ruby-oembed (0.12.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  righthand!
+
+BUNDLED WITH
+   2.0.1

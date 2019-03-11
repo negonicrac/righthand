@@ -1,4 +1,4 @@
-require "righthand/version"
+require 'righthand/version'
 
 module Righthand
 end
